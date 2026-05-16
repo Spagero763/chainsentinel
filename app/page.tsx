@@ -205,13 +205,49 @@ export default function Home() {
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <div style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--accent)" }} />
             <span style={{ ...MONO, fontSize: 12, color: "var(--text-muted)" }}>contract.sol</span>
+            <span style={{
+              ...MONO,
+              fontSize: 10,
+              fontWeight: 700,
+              color: "#a78bfa",
+              background: "rgba(167,139,250,0.1)",
+              border: "1px solid rgba(167,139,250,0.2)",
+              padding: "1px 7px",
+              borderRadius: 3,
+              letterSpacing: "0.05em",
+            }}>
+              Solidity
+            </span>
           </div>
           <span style={{ ...MONO, fontSize: 11, color: "var(--text-dim)" }}>
             {source ? `${source.split("\n").length} lines` : "empty"}
           </span>
         </div>
 
-        <div style={{ flex: 1, overflow: "hidden" }}>
+        <div style={{ flex: 1, overflow: "hidden", position: "relative" }}>
+          {!source && (
+            <div style={{
+              position: "absolute",
+              top: 16,
+              left: 68,
+              zIndex: 5,
+              pointerEvents: "none",
+              fontFamily: "var(--font-geist-mono), monospace",
+              fontSize: 13,
+              lineHeight: 1.6,
+              color: "var(--text-dim)",
+              userSelect: "none",
+            }}>
+              <div>{"// Paste your Solidity smart contract here"}</div>
+              <div style={{ marginTop: 12 }}>{"// Supports: Solidity 0.4.x — 0.8.x"}</div>
+              <div>{"// Checks:   37 gas + security rules · AI audit summary"}</div>
+              <div style={{ marginTop: 12, opacity: 0.6 }}>{"pragma solidity ^0.8.0;"}</div>
+              <div style={{ opacity: 0.6 }}>{"  "}</div>
+              <div style={{ opacity: 0.6 }}>{"contract MyContract {"}</div>
+              <div style={{ opacity: 0.6 }}>{"    // your code here"}</div>
+              <div style={{ opacity: 0.6 }}>{"}"}</div>
+            </div>
+          )}
           <MonacoEditor
             height="100%"
             language="sol"
@@ -245,9 +281,22 @@ export default function Home() {
           flexShrink: 0,
           background: "var(--surface)",
         }}>
-          <span style={{ ...MONO, fontSize: 11, color: "var(--text-dim)" }}>
-            {source ? `${(new Blob([source]).size / 1024).toFixed(1)} KB` : "paste a contract to audit"}
-          </span>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{
+              ...MONO,
+              fontSize: 10,
+              color: "#a78bfa",
+              background: "rgba(167,139,250,0.08)",
+              border: "1px solid rgba(167,139,250,0.15)",
+              padding: "2px 7px",
+              borderRadius: 3,
+            }}>
+              .sol
+            </span>
+            <span style={{ ...MONO, fontSize: 11, color: "var(--text-dim)" }}>
+              {source ? `${source.split("\n").length} lines · ${(new Blob([source]).size / 1024).toFixed(1)} KB` : "Solidity only"}
+            </span>
+          </div>
           <button
             onClick={run}
             disabled={loading || !source.trim()}
@@ -294,11 +343,23 @@ export default function Home() {
         <div style={{ flex: 1, overflowY: "auto" }}>
           {!result && !loading && !error && (
             <div style={{ padding: "56px 24px", textAlign: "center" }}>
-              <div style={{ fontSize: 14, color: "var(--text-dim)", marginBottom: 8 }}>
+              <div style={{ fontSize: 14, color: "var(--text-dim)", marginBottom: 10 }}>
                 Paste a Solidity contract and click Run Audit
               </div>
-              <div style={{ ...MONO, fontSize: 11, color: "var(--text-dim)" }}>
-                15 rules · gas + security · AI summary
+              <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
+                {["Solidity .sol", "37 rules", "Gas + Security", "AI Summary"].map(tag => (
+                  <span key={tag} style={{
+                    ...MONO,
+                    fontSize: 10,
+                    color: "var(--text-dim)",
+                    background: "var(--surface)",
+                    border: "1px solid var(--border-dim)",
+                    padding: "2px 9px",
+                    borderRadius: 3,
+                  }}>
+                    {tag}
+                  </span>
+                ))}
               </div>
             </div>
           )}
