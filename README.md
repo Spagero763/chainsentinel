@@ -1,15 +1,13 @@
 # ChainSentinel
 
+Real-time on-chain intelligence for Mantle.
+
 **https://chainsentinel-app.vercel.app**
-
-ChainSentinel watches Mantle mainnet and tells you what's happening — whale movements, contract deployments, gas spikes, DeFi activity — as it happens.
-
-The audit tool lets you drop in any Solidity contract and get a full breakdown: gas issues, security vulnerabilities, line-by-line, with an AI-written plain-English summary of the risk.
 
 ---
 
-**Audit tool** → paste a contract, get results in seconds
+**Audit tool** — drop in any Solidity contract, get a full security and gas report with an AI summary. No setup, runs in your browser.
 
-**Live feed** → real-time on-chain activity from Mantle, updating every 8 seconds
+**Live feed** — tracks whale transfers, contract deployments, DeFi activity and gas spikes on Mantle as they happen. Updates every 8 seconds.
 
-The agent running this is registered on Mantle mainnet with a verified on-chain identity — every analysis it runs is tied to that identity.
+The agent behind this has a verified identity on Mantle mainnet. Every scan it runs is recorded on-chain.
