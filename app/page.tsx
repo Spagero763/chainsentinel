@@ -3,11 +3,12 @@
 import { useState } from "react"
 import dynamic from "next/dynamic"
 import type { AnalysisResult } from "../lib/analyzer"
+import { SAMPLE_CONTRACT } from "../lib/sample"
 
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), { ssr: false })
 
 type Severity = "critical" | "high" | "medium" | "low" | "info"
-type FullResult = AnalysisResult & { aiSummary: string }
+type FullResult = AnalysisResult & { aiSummary: string; txHash?: string | null; skill?: string }
 
 const SEV_COLOR: Record<Severity, string> = {
   critical: "var(--critical)",
@@ -184,14 +185,12 @@ export default function Home() {
   }
 
   return (
-    <div style={{ display: "flex", height: "calc(100vh - var(--nav-h))", overflow: "hidden" }}>
+    <div className="audit-split">
 
       {/* Left — editor */}
-      <div style={{
-        width: "50%",
+      <div className="audit-editor" style={{
         display: "flex",
         flexDirection: "column",
-        borderRight: "1px solid var(--border-dim)",
       }}>
         <div style={{
           display: "flex",
@@ -219,9 +218,26 @@ export default function Home() {
               Solidity
             </span>
           </div>
-          <span style={{ ...MONO, fontSize: 11, color: "var(--text-dim)" }}>
-            {source ? `${source.split("\n").length} lines` : "empty"}
-          </span>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <button
+              onClick={() => setSource(SAMPLE_CONTRACT)}
+              style={{
+                ...MONO,
+                fontSize: 11,
+                color: "var(--accent)",
+                background: "transparent",
+                border: "1px solid rgba(0,212,170,0.25)",
+                borderRadius: 4,
+                padding: "3px 10px",
+                cursor: "pointer",
+              }}
+            >
+              load example
+            </button>
+            <span style={{ ...MONO, fontSize: 11, color: "var(--text-dim)" }}>
+              {source ? `${source.split("\n").length} lines` : "empty"}
+            </span>
+          </div>
         </div>
 
         <div style={{ flex: 1, overflow: "hidden", position: "relative" }}>
@@ -319,7 +335,7 @@ export default function Home() {
       </div>
 
       {/* Right — results */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+      <div className="audit-results" style={{ display: "flex", flexDirection: "column", overflow: "hidden" }}>
         <div style={{
           display: "flex",
           alignItems: "center",
@@ -390,6 +406,39 @@ export default function Home() {
           {result && (
             <div>
               <ScoreBadge score={result.score} />
+
+              {result.txHash && (
+                <div style={{
+                  margin: "12px 20px 0",
+                  padding: "10px 14px",
+                  background: "rgba(0,212,170,0.05)",
+                  border: "1px solid rgba(0,212,170,0.18)",
+                  borderRadius: 6,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 12,
+                }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <span style={{
+                      width: 7, height: 7, borderRadius: "50%",
+                      background: "var(--accent)",
+                      boxShadow: "0 0 5px var(--accent-glow)",
+                    }} />
+                    <span style={{ fontSize: 12, color: "var(--text)" }}>
+                      Audit recorded on Mantle by ChainSentinel agent
+                    </span>
+                  </div>
+                  <a
+                    href={`https://mantlescan.xyz/tx/${result.txHash}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ ...MONO, fontSize: 11, color: "var(--accent)", textDecoration: "none" }}
+                  >
+                    tx ↗
+                  </a>
+                </div>
+              )}
 
               <div style={{ padding: "10px 20px 4px", ...MONO, fontSize: 11, color: "var(--text-dim)" }}>
                 {result.summary.total} issue{result.summary.total !== 1 ? "s" : ""} found

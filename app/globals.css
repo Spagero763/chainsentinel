@@ -37,3 +37,13 @@ html, body {
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.audit-split { display: flex; height: calc(100vh - var(--nav-h)); overflow: hidden; }
+.audit-split > .audit-editor { width: 50%; border-right: 1px solid var(--border-dim); }
+.audit-split > .audit-results { flex: 1; }
+
+@media (max-width: 768px) {
+  .audit-split { flex-direction: column; height: auto; min-height: calc(100vh - var(--nav-h)); }
+  .audit-split > .audit-editor { width: 100%; min-height: 50vh; border-right: none; border-bottom: 1px solid var(--border-dim); }
+  .audit-split > .audit-results { width: 100%; }
+}
