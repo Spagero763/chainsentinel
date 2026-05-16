@@ -8,7 +8,12 @@ import { SAMPLE_CONTRACT } from "../lib/sample"
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), { ssr: false })
 
 type Severity = "critical" | "high" | "medium" | "low" | "info"
-type FullResult = AnalysisResult & { aiSummary: string; txHash?: string | null; skill?: string }
+type FullResult = AnalysisResult & {
+  aiSummary: string
+  aiFindingsCount?: number
+  txHash?: string | null
+  skill?: string
+}
 
 const SEV_COLOR: Record<Severity, string> = {
   critical: "var(--critical)",
@@ -68,6 +73,7 @@ function FindingRow({ f }: { f: FullResult["findings"][number] }) {
   const sev = f.severity as Severity
   const color = SEV_COLOR[sev]
   const bg = SEV_BG[sev]
+  const isAI = f.id?.startsWith("AI-")
 
   return (
     <div style={{ borderBottom: "1px solid var(--border-dim)" }}>
@@ -99,11 +105,33 @@ function FindingRow({ f }: { f: FullResult["findings"][number] }) {
         }}>
           {f.severity.toUpperCase()}
         </span>
-        <span style={{ ...MONO, fontSize: 11, color: "var(--text-dim)", flexShrink: 0, width: 64 }}>
+        <span style={{
+          ...MONO,
+          fontSize: 11,
+          color: isAI ? "var(--accent)" : "var(--text-dim)",
+          flexShrink: 0,
+          width: 64,
+          fontWeight: isAI ? 700 : 400,
+        }}>
           {f.id}
         </span>
-        <span style={{ fontSize: 13, color: "var(--text)", flex: 1, lineHeight: 1.4 }}>
+        <span style={{ fontSize: 13, color: "var(--text)", flex: 1, lineHeight: 1.4, display: "flex", alignItems: "center", gap: 8 }}>
           {f.title}
+          {isAI && (
+            <span style={{
+              ...MONO,
+              fontSize: 9,
+              fontWeight: 700,
+              color: "var(--accent)",
+              background: "rgba(0,212,170,0.08)",
+              border: "1px solid rgba(0,212,170,0.2)",
+              padding: "1px 5px",
+              borderRadius: 3,
+              letterSpacing: "0.05em",
+            }}>
+              AI
+            </span>
+          )}
         </span>
         {f.line && (
           <span style={{ ...MONO, fontSize: 11, color: "var(--text-muted)", flexShrink: 0 }}>
@@ -442,6 +470,11 @@ export default function Home() {
 
               <div style={{ padding: "10px 20px 4px", ...MONO, fontSize: 11, color: "var(--text-dim)" }}>
                 {result.summary.total} issue{result.summary.total !== 1 ? "s" : ""} found
+                {(result.aiFindingsCount ?? 0) > 0 && (
+                  <span style={{ color: "var(--accent)" }}>
+                    {" · "}{result.aiFindingsCount} discovered by AI
+                  </span>
+                )}
               </div>
 
               {findings.map(f => <FindingRow key={f.id + (f.line ?? "")} f={f} />)}
