@@ -1,0 +1,30 @@
+{
+  "name": "chainsentinel-agentic-wallet",
+  "version": "1.0.0",
+  "description": "ERC-8004 agent identity and agentic wallet for Mantle",
+  "main": "index.js",
+  "scripts": {
+    "compile": "hardhat compile",
+    "deploy:testnet": "hardhat run scripts/deploy.ts --network mantleSepolia",
+    "deploy:mainnet": "hardhat run scripts/deploy.ts --network mantle",
+    "agent": "tsx src/agent.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-ethers": "^3.0.0",
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@types/node": "^25.8.0",
+    "ethers": "^6.0.0",
+    "hardhat": "^2.22.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^6.0.3"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "groq-sdk": "^1.2.0",
+    "viem": "^2.49.2"
+  }
+}

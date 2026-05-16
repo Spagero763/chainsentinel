@@ -2,12 +2,29 @@
 
 Real-time on-chain intelligence for Mantle.
 
-**https://chainsentinel-app.vercel.app**
+**Live:** https://chainsentinel-app.vercel.app
+
+ChainSentinel watches Mantle mainnet and tells you what's happening — whale movements, contract deployments, gas spikes, DeFi activity — as it happens. The audit tool lets you drop in any Solidity contract and get a full breakdown of gas issues, security vulnerabilities and an AI-written summary of the risk. Every audit is permanently recorded on-chain through the agent's ERC-8004 identity.
 
 ---
 
-**Audit tool** — drop in any Solidity contract, get a full security and gas report with an AI summary. No setup, runs in your browser.
+## What's in here
 
-**Live feed** — tracks whale transfers, contract deployments, DeFi activity and gas spikes on Mantle as they happen. Updates every 8 seconds.
+- **Audit tool** — Solidity static analysis with 37 rules + AI summary.
+- **Live feed** — real-time anomaly detection on Mantle mainnet.
+- **Agent identity** — ERC-8004 NFT on Mantle, every audit recorded on-chain.
+- **Watcher** — off-chain Node.js process for Telegram + Discord alerts.
 
-The agent behind this has a verified identity on Mantle mainnet. Every scan it runs is recorded on-chain.
+```
+app/              Next.js app (audit tool + feed + agent page)
+lib/              Static analyzer, AI prompt, agent client
+agent-contract/   AgentIdentity.sol + hardhat deploy scripts
+watcher/          Off-chain anomaly watcher → Telegram + Discord
+```
+
+## On-chain agent
+
+- Contract: [`0xd933c28d0fc2283cca10f4361226c75f7ffeb39e`](https://mantlescan.xyz/address/0xd933c28d0fc2283cca10f4361226c75f7ffeb39e)
+- Standard: ERC-8004 (Autonomous Agent Identity)
+- Token: CSAI #1 — ChainSentinel
+- Skills: gas-audit · security-scan · anomaly-detect · smart-money-track · ai-explain

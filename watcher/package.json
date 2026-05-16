@@ -1,0 +1,26 @@
+{
+  "name": "chainsentinel-alpha-data",
+  "version": "1.0.0",
+  "description": "On-chain anomaly detector and smart money tracker for Mantle",
+  "main": "index.js",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "dev": "tsx watch src/index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "groq-sdk": "^1.2.0",
+    "node-telegram-bot-api": "^0.67.0",
+    "viem": "^2.49.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.8.0",
+    "@types/node-telegram-bot-api": "^0.64.14",
+    "tsx": "^4.22.0",
+    "typescript": "^6.0.3"
+  }
+}
