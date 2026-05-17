@@ -71,9 +71,10 @@ export async function POST(req: NextRequest) {
     new Promise<null>(resolve => setTimeout(() => resolve(null), 3000)),
   ])
 
-  // Fire-and-forget Telegram + Discord broadcast (rate-limited per source hash)
+  // Await broadcast — Vercel freezes the function once response is returned,
+  // killing fire-and-forget Promises mid-flight (~5% Telegram delivery loss)
   const sourceHash = createHash("sha256").update(source).digest("hex").slice(0, 16)
-  broadcastAudit({
+  await broadcastAudit({
     score,
     totalFindings: summary.total,
     counts: {
