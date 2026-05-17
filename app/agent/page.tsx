@@ -128,6 +128,24 @@ export default function AgentPage() {
         }} />
 
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 16 }}>
+          <div style={{ display: "flex", gap: 18, alignItems: "flex-start" }}>
+            <div style={{
+              width: 56,
+              height: 56,
+              borderRadius: 12,
+              background: "rgba(0,212,170,0.08)",
+              border: "1px solid rgba(0,212,170,0.25)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            }}>
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                <path d="M16 2 L28 9 L28 23 L16 30 L4 23 L4 9 Z" stroke="var(--accent)" strokeWidth="2" strokeLinejoin="round"/>
+                <circle cx="16" cy="16" r="6.5" stroke="var(--accent)" strokeWidth="1" opacity="0.4"/>
+                <circle cx="16" cy="16" r="2.5" fill="var(--accent)"/>
+              </svg>
+            </div>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
               <span style={{
@@ -172,6 +190,7 @@ export default function AgentPage() {
             <div style={{ ...MONO, fontSize: 13, color: "var(--text-muted)" }}>
               {agent.type} agent · registered {formatDate(agent.mintedAt)}
             </div>
+          </div>
           </div>
 
           <a

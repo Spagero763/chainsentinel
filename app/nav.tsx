@@ -46,6 +46,9 @@ export default function Nav() {
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
         <Link href="/" style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
           fontFamily: "var(--font-geist-mono)",
           fontWeight: 700,
           fontSize: 14,
@@ -53,6 +56,11 @@ export default function Nav() {
           textDecoration: "none",
           letterSpacing: "-0.01em",
         }}>
+          <svg width="20" height="20" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+            <path d="M16 2 L28 9 L28 23 L16 30 L4 23 L4 9 Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/>
+            <circle cx="16" cy="16" r="6.5" stroke="currentColor" strokeWidth="1" opacity="0.4"/>
+            <circle cx="16" cy="16" r="2.5" fill="currentColor"/>
+          </svg>
           chainsentinel
         </Link>
 

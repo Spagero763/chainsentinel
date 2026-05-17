@@ -4,7 +4,7 @@ import type { Anomaly } from "./detector"
 const LIVE_URL = "https://chainsentinel-app.vercel.app"
 const FEED_URL = `${LIVE_URL}/feed`
 const AGENT_URL = "https://mantlescan.xyz/address/0xd933c28d0fc2283cca10f4361226c75f7ffeb39e"
-const LOGO_URL = `${LIVE_URL}/logo.png`
+const LOGO_URL = `${LIVE_URL}/api/icon-png`
 
 let _bot: TelegramBot | null = null
 function getBot() {
