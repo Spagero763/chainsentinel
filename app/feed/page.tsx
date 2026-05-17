@@ -93,11 +93,11 @@ function EventCard({ e, fresh }: { e: FeedEvent; fresh: boolean }) {
         </span>
       </div>
 
-      <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text)", marginBottom: 6, lineHeight: 1.4 }}>
+      <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text)", marginBottom: 6, lineHeight: 1.4, wordBreak: "break-word" }}>
         {e.title}
       </div>
 
-      <div style={{ ...MONO, fontSize: 12, color: "var(--text-muted)", marginBottom: 14, lineHeight: 1.5 }}>
+      <div style={{ ...MONO, fontSize: 12, color: "var(--text-muted)", marginBottom: 14, lineHeight: 1.5, wordBreak: "break-all" }}>
         {e.detail}
       </div>
 
@@ -182,15 +182,17 @@ export default function FeedPage() {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        padding: "0 20px",
+        padding: "0 12px",
         height: 48,
         borderBottom: "1px solid var(--border-dim)",
         position: "sticky",
         top: "var(--nav-h)",
         background: "var(--bg)",
         zIndex: 40,
+        gap: 8,
+        overflow: "hidden",
       }}>
-        <div style={{ display: "flex", gap: 2 }}>
+        <div style={{ display: "flex", gap: 2, overflowX: "auto", flex: "1 1 auto", minWidth: 0 }}>
           {FILTERS.map(({ key, label }) => (
             <button
               key={key}
@@ -212,9 +214,9 @@ export default function FeedPage() {
           ))}
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
           {data && (
-            <span style={{ ...MONO, fontSize: 11, color: "var(--text-dim)" }}>
+            <span className="nav-badge" style={{ ...MONO, fontSize: 11, color: "var(--text-dim)" }}>
               {filtered.length} events · block {Number(data.block).toLocaleString()}
             </span>
           )}

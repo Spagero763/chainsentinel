@@ -274,6 +274,7 @@ export default function Home() {
               position: "absolute",
               top: 16,
               left: 68,
+              right: 16,
               zIndex: 5,
               pointerEvents: "none",
               fontFamily: "var(--font-geist-mono), monospace",
@@ -281,6 +282,8 @@ export default function Home() {
               lineHeight: 1.6,
               color: "var(--text-dim)",
               userSelect: "none",
+              overflow: "hidden",
+              maxWidth: "calc(100% - 84px)",
             }}>
               <div>{"// Paste your Solidity smart contract here"}</div>
               <div style={{ marginTop: 12 }}>{"// Supports: Solidity 0.4.x — 0.8.x"}</div>
@@ -412,7 +415,8 @@ export default function Home() {
                 background: "var(--surface)",
                 border: "1px solid var(--border-dim)",
                 borderRadius: 8,
-                maxWidth: 400,
+                maxWidth: "90%",
+                width: "auto",
               }}>
                 <div style={{ fontSize: 12, color: "var(--text)", marginBottom: 4 }}>
                   Get notified every time an audit runs

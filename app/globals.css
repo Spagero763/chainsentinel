@@ -42,8 +42,22 @@ html, body {
 .audit-split > .audit-editor { width: 50%; border-right: 1px solid var(--border-dim); }
 .audit-split > .audit-results { flex: 1; }
 
+/* Nav text-on-button — hidden on small screens, icons stay visible */
+.nav-label { display: inline; }
+.nav-badge { display: inline-flex; }
+
 @media (max-width: 768px) {
   .audit-split { flex-direction: column; height: auto; min-height: calc(100vh - var(--nav-h)); }
-  .audit-split > .audit-editor { width: 100%; min-height: 50vh; border-right: none; border-bottom: 1px solid var(--border-dim); }
+  .audit-split > .audit-editor { width: 100%; min-height: 60vh; border-right: none; border-bottom: 1px solid var(--border-dim); }
   .audit-split > .audit-results { width: 100%; }
+}
+
+@media (max-width: 640px) {
+  :root { --nav-h: 52px; }
+  .nav-label { display: none; }
+  .nav-badge { display: none; }
+}
+
+@media (max-width: 420px) {
+  .nav-page-link { padding: 4px 8px !important; font-size: 12px !important; }
 }

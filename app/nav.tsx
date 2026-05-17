@@ -38,13 +38,14 @@ export default function Nav() {
       display: "flex",
       alignItems: "center",
       justifyContent: "space-between",
-      padding: "0 24px",
+      padding: "0 16px",
+      gap: 12,
       background: "var(--bg)",
       position: "sticky",
       top: 0,
       zIndex: 50,
     }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 16, minWidth: 0, flex: "0 1 auto" }}>
         <Link href="/" style={{
           display: "flex",
           alignItems: "center",
@@ -66,7 +67,7 @@ export default function Nav() {
 
         <nav style={{ display: "flex", gap: 2 }}>
           {LINKS.map(({ href, label }) => (
-            <Link key={href} href={href} style={{
+            <Link key={href} href={href} className="nav-page-link" style={{
               fontSize: 13,
               color: path === href ? "var(--text)" : "var(--text-muted)",
               textDecoration: "none",
@@ -105,7 +106,7 @@ export default function Nav() {
           onMouseLeave={e => { e.currentTarget.style.color = "var(--text-muted)"; e.currentTarget.style.borderColor = "var(--border-dim)" }}
         >
           <TelegramIcon />
-          <span style={{ fontFamily: "var(--font-geist-mono)" }}>Telegram</span>
+          <span className="nav-label" style={{ fontFamily: "var(--font-geist-mono)" }}>Telegram</span>
         </a>
         <a
           href={DISCORD_INVITE}
@@ -130,17 +131,17 @@ export default function Nav() {
           onMouseLeave={e => { e.currentTarget.style.color = "var(--text-muted)"; e.currentTarget.style.borderColor = "var(--border-dim)" }}
         >
           <DiscordIcon />
-          <span style={{ fontFamily: "var(--font-geist-mono)" }}>Discord</span>
+          <span className="nav-label" style={{ fontFamily: "var(--font-geist-mono)" }}>Discord</span>
         </a>
 
-        <div style={{
+        <div className="nav-badge" style={{
           width: 1,
           height: 18,
           background: "var(--border-dim)",
           margin: "0 4px",
         }} />
 
-        <span style={{
+        <span className="nav-badge" style={{
           fontFamily: "var(--font-geist-mono)",
           fontSize: 11,
           color: "var(--text-dim)",

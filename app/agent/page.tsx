@@ -107,7 +107,7 @@ export default function AgentPage() {
   const repColor = repNum > 0 ? "var(--accent)" : repNum < 0 ? "var(--critical)" : "var(--text)"
 
   return (
-    <div style={{ maxWidth: 920, margin: "0 auto", padding: "32px 24px 80px" }}>
+    <div style={{ maxWidth: 920, margin: "0 auto", padding: "24px 16px 60px" }}>
 
       {/* Hero card */}
       <div style={{
@@ -127,8 +127,8 @@ export default function AgentPage() {
           pointerEvents: "none",
         }} />
 
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 16 }}>
-          <div style={{ display: "flex", gap: 18, alignItems: "flex-start" }}>
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 16, gap: 12, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: 18, alignItems: "flex-start", flex: "1 1 auto", minWidth: 0 }}>
             <div style={{
               width: 56,
               height: 56,
@@ -184,7 +184,7 @@ export default function AgentPage() {
               </span>
             </div>
 
-            <div style={{ fontSize: 30, fontWeight: 700, color: "var(--text)", letterSpacing: "-0.02em", marginBottom: 4 }}>
+            <div style={{ fontSize: 26, fontWeight: 700, color: "var(--text)", letterSpacing: "-0.02em", marginBottom: 4, wordBreak: "break-word" }}>
               {agent.name}
             </div>
             <div style={{ ...MONO, fontSize: 13, color: "var(--text-muted)" }}>
@@ -305,6 +305,8 @@ export default function AgentPage() {
             alignItems: "center",
             padding: "10px 0",
             borderTop: i === 0 ? "none" : "1px solid var(--border-dim)",
+            gap: 12,
+            flexWrap: "wrap",
           }}>
             <span style={{ fontSize: 12, color: "var(--text-muted)" }}>{row.label}</span>
             {row.link ? (
