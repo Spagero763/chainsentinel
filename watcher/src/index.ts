@@ -39,13 +39,31 @@ async function processBlock(blockNumber: bigint) {
   if (txHash) console.log(`  [chain] execution recorded: ${txHash}`)
 }
 
-async function watch() {
-  console.log("chainsentinel / track2-alpha-data")
-  console.log("monitoring mantle mainnet for anomalies...\n")
+const C = {
+  reset: "\x1b[0m",
+  bold:  "\x1b[1m",
+  dim:   "\x1b[2m",
+  green: "\x1b[38;5;43m",
+  gray:  "\x1b[38;5;240m",
+  white: "\x1b[38;5;255m",
+}
 
-  // Start from current block
+function banner() {
+  const { reset: R, bold: B, dim: D, green: G, gray: GR, white: W } = C
+  console.log("")
+  console.log(`${G}      ⬡${R}   ${B}${W}ChainSentinel${R} ${D}${GR}· mantle on-chain watcher${R}`)
+  console.log(`${D}${GR}  ─────────────────────────────────────────────────${R}`)
+  console.log(`  ${D}${GR}live:${R}    ${G}https://chainsentinel-app.vercel.app${R}`)
+  console.log(`  ${D}${GR}agent:${R}   ${G}CSAI #1${R} ${D}${GR}· 0xd933...f39e · ERC-8004${R}`)
+  console.log(`  ${D}${GR}skills:${R}  ${GR}anomaly-detect · smart-money-track · ai-explain${R}`)
+  console.log(`${D}${GR}  ─────────────────────────────────────────────────${R}`)
+  console.log("")
+}
+
+async function watch() {
+  banner()
   lastBlock = await client.getBlockNumber()
-  console.log(`starting at block ${lastBlock}\n`)
+  console.log(`${C.dim}${C.gray}  watching from block${C.reset} ${C.green}${lastBlock}${C.reset}${C.dim}${C.gray} · polling every 3s${C.reset}\n`)
 
   // Poll every 3 seconds (Mantle block time ~2s)
   setInterval(async () => {
