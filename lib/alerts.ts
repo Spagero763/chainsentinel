@@ -60,10 +60,16 @@ function shouldBroadcast(hash: string): boolean {
 
 export async function broadcastAudit(alert: AuditAlert, sourceHash: string): Promise<void> {
   if (!shouldBroadcast(sourceHash)) return
-  await Promise.all([
-    sendTelegramAudit(alert).catch(e => console.error("[telegram]", (e as Error).message)),
-    sendDiscordAudit(alert).catch(e => console.error("[discord]",  (e as Error).message)),
+  const [tg, dc] = await Promise.allSettled([
+    sendTelegramAudit(alert),
+    sendDiscordAudit(alert),
   ])
+  if (tg.status === "rejected") console.error("[alerts] telegram failed:", tg.reason?.message ?? tg.reason)
+  if (dc.status === "rejected") console.error("[alerts] discord failed:", dc.reason?.message ?? dc.reason)
+}
+
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
 }
 
 async function sendTelegramAudit(alert: AuditAlert): Promise<void> {
@@ -76,8 +82,8 @@ async function sendTelegramAudit(alert: AuditAlert): Promise<void> {
   const icon   = SEV_ICON[sev]
 
   const lines: string[] = []
-  lines.push(`${icon} *ChainSentinel — New Audit*`)
-  lines.push(`Score: *${alert.score}/100* · Verdict: *${verdict}*`)
+  lines.push(`${icon} <b>ChainSentinel — New Audit</b>`)
+  lines.push(`Score: <b>${alert.score}/100</b> · Verdict: <b>${verdict}</b>`)
   lines.push(`${alert.totalFindings} ${alert.totalFindings === 1 ? "issue" : "issues"} found`)
   lines.push("")
 
@@ -93,24 +99,28 @@ async function sendTelegramAudit(alert: AuditAlert): Promise<void> {
   }
 
   if (alert.topFindings.length > 0) {
-    lines.push("*Top findings:*")
+    lines.push("<b>Top findings:</b>")
     for (const f of alert.topFindings.slice(0, 3)) {
-      lines.push(`${SEV_ICON[f.severity]} ${f.title}${f.line ? ` _(line ${f.line})_` : ""}`)
+      const title = escapeHtml(f.title)
+      lines.push(`${SEV_ICON[f.severity]} ${title}${f.line ? ` <i>(line ${f.line})</i>` : ""}`)
     }
     lines.push("")
   }
 
   if (alert.aiSummary) {
-    lines.push(`💬 _${alert.aiSummary.slice(0, 300)}${alert.aiSummary.length > 300 ? "..." : ""}_`)
+    const summary = escapeHtml(alert.aiSummary.slice(0, 300)) + (alert.aiSummary.length > 300 ? "..." : "")
+    lines.push(`💬 <i>${summary}</i>`)
     lines.push("")
   }
 
-  lines.push(`🛡 [Audit live](${LIVE_URL})${alert.txHash ? ` · ⛓ [On-chain proof](https://mantlescan.xyz/tx/${alert.txHash})` : ""}`)
+  const links: string[] = [`🛡 <a href="${LIVE_URL}">Audit live</a>`]
+  if (alert.txHash) links.push(`⛓ <a href="https://mantlescan.xyz/tx/${alert.txHash}">On-chain proof</a>`)
+  lines.push(links.join(" · "))
 
   const bot = await getBot()
   if (!bot) return
   await bot.sendMessage(chatId, lines.join("\n"), {
-    parse_mode: "Markdown",
+    parse_mode: "HTML",
     disable_web_page_preview: true,
   })
 }
