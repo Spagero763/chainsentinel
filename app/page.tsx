@@ -390,7 +390,7 @@ export default function Home() {
               <div style={{ fontSize: 14, color: "var(--text-dim)", marginBottom: 10 }}>
                 Paste a Solidity contract and click Run Audit
               </div>
-              <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
+              <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginBottom: 28 }}>
                 {["Solidity .sol", "37 rules", "Gas + Security", "AI Summary"].map(tag => (
                   <span key={tag} style={{
                     ...MONO,
@@ -404,6 +404,58 @@ export default function Home() {
                     {tag}
                   </span>
                 ))}
+              </div>
+
+              <div style={{
+                display: "inline-block",
+                padding: "16px 20px",
+                background: "var(--surface)",
+                border: "1px solid var(--border-dim)",
+                borderRadius: 8,
+                maxWidth: 400,
+              }}>
+                <div style={{ fontSize: 12, color: "var(--text)", marginBottom: 4 }}>
+                  Get notified every time an audit runs
+                </div>
+                <div style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: 14, lineHeight: 1.5 }}>
+                  Live audit reports + Mantle anomaly alerts sent to both channels
+                </div>
+                <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
+                  <a
+                    href={process.env.NEXT_PUBLIC_TELEGRAM_INVITE || "https://t.me/ChainSentinelg"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      ...MONO,
+                      fontSize: 11,
+                      color: "var(--text)",
+                      background: "var(--surface-2)",
+                      border: "1px solid var(--border)",
+                      padding: "6px 14px",
+                      borderRadius: 6,
+                      textDecoration: "none",
+                    }}
+                  >
+                    Join Telegram
+                  </a>
+                  <a
+                    href={process.env.NEXT_PUBLIC_DISCORD_INVITE || "https://discord.gg/vNCqr4VA"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      ...MONO,
+                      fontSize: 11,
+                      color: "var(--text)",
+                      background: "var(--surface-2)",
+                      border: "1px solid var(--border)",
+                      padding: "6px 14px",
+                      borderRadius: 6,
+                      textDecoration: "none",
+                    }}
+                  >
+                    Join Discord
+                  </a>
+                </div>
               </div>
             </div>
           )}

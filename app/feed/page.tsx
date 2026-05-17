@@ -260,10 +260,54 @@ export default function FeedPage() {
         ))}
 
         {!loading && filtered.length > 0 && (
-          <div style={{ padding: "24px 20px", textAlign: "center" }}>
+          <div style={{ padding: "24px 20px 8px", textAlign: "center" }}>
             <span style={{ ...MONO, fontSize: 11, color: "var(--text-dim)" }}>
               last 20 blocks · updates every 8s
             </span>
+          </div>
+        )}
+
+        {!loading && (
+          <div style={{ padding: "12px 20px 32px", textAlign: "center" }}>
+            <div style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 10 }}>
+              Get these alerts pushed to you
+            </div>
+            <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
+              <a
+                href={process.env.NEXT_PUBLIC_TELEGRAM_INVITE || "https://t.me/ChainSentinelg"}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  ...MONO,
+                  fontSize: 11,
+                  color: "var(--text-muted)",
+                  background: "var(--surface)",
+                  border: "1px solid var(--border-dim)",
+                  padding: "5px 12px",
+                  borderRadius: 6,
+                  textDecoration: "none",
+                }}
+              >
+                Telegram
+              </a>
+              <a
+                href={process.env.NEXT_PUBLIC_DISCORD_INVITE || "https://discord.gg/vNCqr4VA"}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  ...MONO,
+                  fontSize: 11,
+                  color: "var(--text-muted)",
+                  background: "var(--surface)",
+                  border: "1px solid var(--border-dim)",
+                  padding: "5px 12px",
+                  borderRadius: 6,
+                  textDecoration: "none",
+                }}
+              >
+                Discord
+              </a>
+            </div>
           </div>
         )}
       </div>
