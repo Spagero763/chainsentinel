@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { analyze } from "../../../lib/analyzer"
 import { deepAudit } from "../../../lib/ai"
 import { recordExecution } from "../../../lib/agent"
+import { broadcastAudit } from "../../../lib/alerts"
+import { createHash } from "crypto"
 import type { Finding } from "../../../lib/rules/gas"
 
 export const maxDuration = 60
@@ -68,6 +70,23 @@ export async function POST(req: NextRequest) {
     txPromise,
     new Promise<null>(resolve => setTimeout(() => resolve(null), 3000)),
   ])
+
+  // Fire-and-forget Telegram + Discord broadcast (rate-limited per source hash)
+  const sourceHash = createHash("sha256").update(source).digest("hex").slice(0, 16)
+  broadcastAudit({
+    score,
+    totalFindings: summary.total,
+    counts: {
+      critical: summary.critical,
+      high: summary.high,
+      medium: summary.medium,
+      low: summary.low,
+      info: summary.info,
+    },
+    topFindings: merged.slice(0, 5),
+    aiSummary: aiAudit.narrative,
+    txHash,
+  }, sourceHash).catch(() => {})
 
   return NextResponse.json({
     findings: merged,
