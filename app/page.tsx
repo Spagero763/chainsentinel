@@ -393,6 +393,16 @@ export default function Home() {
               <div style={{ fontSize: 14, color: "var(--text-dim)", marginBottom: 10 }}>
                 Paste a Solidity contract and click Run Audit
               </div>
+              <div style={{
+                fontSize: 11,
+                color: "var(--text-dim)",
+                fontStyle: "italic",
+                lineHeight: 1.6,
+                maxWidth: 420,
+                margin: "0 auto 22px",
+              }}>
+                Automated first-pass review — not a substitute for a professional audit before mainnet deployment.
+              </div>
               <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginBottom: 28 }}>
                 {["Solidity .sol", "37 rules", "Gas + Security", "AI Summary"].map(tag => (
                   <span key={tag} style={{
@@ -558,6 +568,20 @@ export default function Home() {
                   </p>
                 </div>
               )}
+
+              <div style={{
+                margin: "0 16px 24px",
+                padding: "10px 14px",
+                background: "var(--surface)",
+                border: "1px solid var(--border-dim)",
+                borderRadius: 6,
+                fontSize: 11,
+                color: "var(--text-muted)",
+                fontStyle: "italic",
+                lineHeight: 1.6,
+              }}>
+                Automated first-pass review — not a substitute for a professional audit before mainnet deployment.
+              </div>
             </div>
           )}
         </div>
