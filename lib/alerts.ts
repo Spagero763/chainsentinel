@@ -190,6 +190,17 @@ async function sendDiscordAudit(alert: AuditAlert): Promise<void> {
   })
 }
 
+function stripHtml(s: string): string {
+  return s
+    .replace(/<\/?(b|i|u|s|strong|em|code|pre)\b[^>]*>/gi, "")
+    .replace(/<a\b[^>]*>/gi, "")
+    .replace(/<\/a>/gi, "")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+}
+
 let _bot: { sendMessage: (chat: string, text: string, opts?: unknown) => Promise<unknown> } | null = null
 
 async function getBot() {
@@ -200,13 +211,37 @@ async function getBot() {
   // to avoid polling/server side-effects in Vercel serverless.
   _bot = {
     async sendMessage(chat_id: string, text: string, opts?: unknown) {
+      const url = `https://api.telegram.org/bot${token}/sendMessage`
       const body = { chat_id, text, ...(opts as object) }
-      const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+
+      let res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       })
-      if (!res.ok) throw new Error(`telegram: ${res.status} ${await res.text()}`)
+
+      // HTML/Markdown parse failure → retry as plain text. Guarantees delivery
+      // even when AI narrative contains characters Telegram's parser rejects.
+      if (!res.ok) {
+        const err = await res.text()
+        const isParseError = res.status === 400 && /parse|entity|tag/i.test(err)
+        if (isParseError) {
+          const retry = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              chat_id,
+              text: stripHtml(text),
+              disable_web_page_preview: true,
+            }),
+          })
+          if (!retry.ok) {
+            throw new Error(`telegram (retry): ${retry.status} ${await retry.text()}`)
+          }
+          return retry.json()
+        }
+        throw new Error(`telegram: ${res.status} ${err}`)
+      }
       return res.json()
     },
   }
