@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import type { FeedEvent } from "../api/feed/route"
+import type { SmartWallet } from "../api/smart-money/route"
 
 const MONO: React.CSSProperties = {
   fontFamily: "var(--font-geist-mono), 'Fira Code', Consolas, monospace",
@@ -21,15 +22,65 @@ const TYPE_LABEL: Record<string, string> = {
   GAS_SPIKE:"GAS",
 }
 
-type Filter = "all" | "WHALE" | "LARGE" | "DEPLOY" | "GAS_SPIKE"
+type Filter = "all" | "WHALE" | "LARGE" | "DEPLOY" | "GAS_SPIKE" | "SMART_MONEY"
 
 const FILTERS: { key: Filter; label: string }[] = [
-  { key: "all",      label: "All" },
-  { key: "WHALE",    label: "Whale" },
-  { key: "LARGE",    label: "Transfer" },
-  { key: "DEPLOY",   label: "Contract" },
-  { key: "GAS_SPIKE",label: "Gas" },
+  { key: "all",        label: "All" },
+  { key: "WHALE",      label: "Whale" },
+  { key: "LARGE",      label: "Transfer" },
+  { key: "DEPLOY",     label: "Contract" },
+  { key: "GAS_SPIKE",  label: "Gas" },
+  { key: "SMART_MONEY",label: "Smart Money" },
 ]
+
+const BEHAVIOR_COLOR: Record<string, string> = {
+  accumulating: "var(--accent)",
+  distributing: "var(--high)",
+  active:       "var(--medium)",
+}
+
+function shortAddr(a: string) { return `${a.slice(0, 6)}...${a.slice(-4)}` }
+
+function SmartWalletCard({ w, rank }: { w: SmartWallet; rank: number }) {
+  const color = BEHAVIOR_COLOR[w.behavior] ?? "var(--text-dim)"
+  return (
+    <div style={{
+      borderBottom: "1px solid var(--border-dim)",
+      padding: "16px 20px",
+      display: "flex",
+      alignItems: "center",
+      gap: 14,
+    }}>
+      <span style={{ ...MONO, fontSize: 13, color: "var(--text-dim)", width: 22, flexShrink: 0 }}>
+        {rank}
+      </span>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+          <a href={w.explorerUrl} target="_blank" rel="noopener noreferrer"
+            style={{ ...MONO, fontSize: 13, color: "var(--text)", textDecoration: "none" }}>
+            {shortAddr(w.address)} ↗
+          </a>
+          <span style={{
+            ...MONO, fontSize: 10, fontWeight: 700, color,
+            background: `${color}15`, border: `1px solid ${color}30`,
+            padding: "2px 8px", borderRadius: 4, letterSpacing: "0.06em",
+          }}>
+            {w.behavior.toUpperCase()}
+          </span>
+        </div>
+        <div style={{ ...MONO, fontSize: 12, color: "var(--text-muted)" }}>
+          {Number(w.totalVolume).toLocaleString(undefined, { maximumFractionDigits: 0 })} MNT moved · {w.txCount} txs
+        </div>
+      </div>
+      <div style={{ textAlign: "right", flexShrink: 0 }}>
+        <div style={{ ...MONO, fontSize: 13, fontWeight: 600, color, lineHeight: 1.2 }}>
+          {Number(w.netFlow) >= 0 ? "+" : ""}{Number(w.netFlow).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+        </div>
+        <div style={{ ...MONO, fontSize: 10, color: "var(--text-dim)" }}>net MNT</div>
+      </div>
+    </div>
+  )
+}
 
 function timeAgo(ts: number): string {
   const diff = Math.floor(Date.now() / 1000) - ts
@@ -131,6 +182,8 @@ export default function FeedPage() {
   const [freshIds, setFreshIds] = useState<Set<string>>(new Set())
   const [filter, setFilter] = useState<Filter>("all")
   const [, setTick] = useState(0)
+  const [smartMoney, setSmartMoney] = useState<SmartWallet[] | null>(null)
+  const [smLoading, setSmLoading] = useState(false)
 
   const fetchFeed = useCallback(async (isFirst = false) => {
     try {
@@ -171,8 +224,31 @@ export default function FeedPage() {
     return () => clearTimeout(t)
   }, [freshIds])
 
+  // Fetch smart-money ranking when that tab is active (and refresh every 30s)
+  useEffect(() => {
+    if (filter !== "SMART_MONEY") return
+    let alive = true
+    const load = async () => {
+      setSmLoading(smartMoney === null)
+      try {
+        const res = await fetch("/api/smart-money")
+        const json = await res.json()
+        if (alive && res.ok) setSmartMoney(json.wallets ?? [])
+      } catch { /* keep last data */ }
+      finally { if (alive) setSmLoading(false) }
+    }
+    load()
+    const i = setInterval(load, 30000)
+    return () => { alive = false; clearInterval(i) }
+  }, [filter, smartMoney])
+
   const events = data?.events ?? []
-  const filtered = filter === "all" ? events : events.filter(e => e.type === filter)
+  const filtered = filter === "all"
+    ? events
+    : filter === "SMART_MONEY"
+      ? events
+      : events.filter(e => e.type === filter)
+  const showSmartMoney = filter === "SMART_MONEY"
 
   return (
     <div style={{ minHeight: "calc(100vh - var(--nav-h))", background: "var(--bg)" }}>
@@ -239,7 +315,46 @@ export default function FeedPage() {
           </div>
         )}
 
-        {loading && (
+        {/* Smart Money view */}
+        {showSmartMoney && (
+          <>
+            <div style={{ padding: "16px 20px 8px" }}>
+              <div style={{ fontSize: 13, color: "var(--text)", marginBottom: 4 }}>
+                Smart money on Mantle
+              </div>
+              <div style={{ ...MONO, fontSize: 11, color: "var(--text-dim)", lineHeight: 1.5 }}>
+                Wallets moving the most value in the last 20 blocks, ranked by volume and classified by net flow.
+              </div>
+            </div>
+
+            {smLoading && (
+              <div style={{ padding: "40px 20px", textAlign: "center", ...MONO, fontSize: 12, color: "var(--text-dim)" }}>
+                Ranking active wallets...
+              </div>
+            )}
+
+            {!smLoading && smartMoney && smartMoney.length === 0 && (
+              <div style={{ padding: "40px 20px", textAlign: "center", fontSize: 14, color: "var(--text-dim)" }}>
+                No large wallet movements in recent blocks
+              </div>
+            )}
+
+            {!smLoading && smartMoney && smartMoney.map((w, i) => (
+              <SmartWalletCard key={w.address} w={w} rank={i + 1} />
+            ))}
+
+            {!smLoading && smartMoney && smartMoney.length > 0 && (
+              <div style={{ padding: "24px 20px 8px", textAlign: "center" }}>
+                <span style={{ ...MONO, fontSize: 11, color: "var(--text-dim)" }}>
+                  last 20 blocks · updates every 30s · accumulating = net inflow, distributing = net outflow
+                </span>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Anomaly feed view */}
+        {!showSmartMoney && loading && (
           <div style={{ padding: "56px 20px", textAlign: "center" }}>
             <div style={{ ...MONO, fontSize: 12, color: "var(--text-dim)" }}>
               Scanning Mantle mainnet...
@@ -247,7 +362,7 @@ export default function FeedPage() {
           </div>
         )}
 
-        {!loading && filtered.length === 0 && (
+        {!showSmartMoney && !loading && filtered.length === 0 && (
           <div style={{ padding: "56px 20px", textAlign: "center" }}>
             <div style={{ fontSize: 14, color: "var(--text-dim)" }}>
               {filter === "all"
@@ -257,11 +372,11 @@ export default function FeedPage() {
           </div>
         )}
 
-        {filtered.map(e => (
+        {!showSmartMoney && filtered.map(e => (
           <EventCard key={e.id} e={e} fresh={freshIds.has(e.id)} />
         ))}
 
-        {!loading && filtered.length > 0 && (
+        {!showSmartMoney && !loading && filtered.length > 0 && (
           <div style={{ padding: "24px 20px 8px", textAlign: "center" }}>
             <span style={{ ...MONO, fontSize: 11, color: "var(--text-dim)" }}>
               last 20 blocks · updates every 8s
