@@ -68,6 +68,113 @@ export async function broadcastAudit(alert: AuditAlert, sourceHash: string): Pro
   if (dc.status === "rejected") console.error("[alerts] discord failed:", dc.reason?.message ?? dc.reason)
 }
 
+export interface ActivityDigest {
+  block: string
+  anomalies: { whale: number; large: number; deploy: number; gas: number; total: number }
+  topWallets: Array<{ address: string; behavior: string; netFlow: string; totalVolume: string }>
+}
+
+export async function broadcastDigest(d: ActivityDigest): Promise<{ telegram: boolean; discord: boolean }> {
+  const [tg, dc] = await Promise.allSettled([
+    sendTelegramDigest(d),
+    sendDiscordDigest(d),
+  ])
+  if (tg.status === "rejected") console.error("[digest] telegram failed:", tg.reason?.message ?? tg.reason)
+  if (dc.status === "rejected") console.error("[digest] discord failed:", dc.reason?.message ?? dc.reason)
+  return { telegram: tg.status === "fulfilled", discord: dc.status === "fulfilled" }
+}
+
+function shortAddr(a: string) { return `${a.slice(0, 6)}...${a.slice(-4)}` }
+function fmt(n: string) { return Number(n).toLocaleString(undefined, { maximumFractionDigits: 0 }) }
+
+async function sendTelegramDigest(d: ActivityDigest): Promise<void> {
+  const token = process.env.TELEGRAM_BOT_TOKEN
+  const chatId = process.env.TELEGRAM_CHAT_ID
+  if (!token || !chatId) return
+
+  const lines: string[] = []
+  lines.push(`📊 <b>ChainSentinel — Mantle Activity</b>`)
+  lines.push(`Block ${Number(d.block).toLocaleString()}`)
+  lines.push("")
+
+  const a = d.anomalies
+  const parts: string[] = []
+  if (a.whale > 0)  parts.push(`🐋 ${a.whale} whale`)
+  if (a.large > 0)  parts.push(`💸 ${a.large} large transfer${a.large === 1 ? "" : "s"}`)
+  if (a.deploy > 0) parts.push(`📦 ${a.deploy} deploy${a.deploy === 1 ? "" : "s"}`)
+  if (a.gas > 0)    parts.push(`⛽ ${a.gas} gas spike${a.gas === 1 ? "" : "s"}`)
+  lines.push(parts.length ? parts.join(" · ") : "No anomalies this window")
+  lines.push("")
+
+  if (d.topWallets.length > 0) {
+    lines.push(`<b>Smart money:</b>`)
+    for (const w of d.topWallets.slice(0, 4)) {
+      const sign = Number(w.netFlow) >= 0 ? "+" : ""
+      const icon = w.behavior === "accumulating" ? "🟢" : w.behavior === "distributing" ? "🟠" : "🔵"
+      lines.push(`${icon} ${shortAddr(w.address)} ${w.behavior} · ${sign}${fmt(w.netFlow)} MNT`)
+    }
+    lines.push("")
+  }
+
+  lines.push(`<a href="${LIVE_URL}/feed">Live feed ↗</a>`)
+
+  const bot = await getBot()
+  if (!bot) return
+  await bot.sendMessage(chatId, lines.join("\n"), {
+    parse_mode: "HTML",
+    disable_web_page_preview: true,
+  })
+}
+
+async function sendDiscordDigest(d: ActivityDigest): Promise<void> {
+  const webhook = process.env.DISCORD_WEBHOOK_URL
+  if (!webhook) return
+
+  const a = d.anomalies
+  const anomalyParts: string[] = []
+  if (a.whale > 0)  anomalyParts.push(`🐋 ${a.whale} whale`)
+  if (a.large > 0)  anomalyParts.push(`💸 ${a.large} large`)
+  if (a.deploy > 0) anomalyParts.push(`📦 ${a.deploy} deploy`)
+  if (a.gas > 0)    anomalyParts.push(`⛽ ${a.gas} gas`)
+
+  const fields = []
+  fields.push({
+    name: "Anomalies",
+    value: anomalyParts.length ? anomalyParts.join(" · ") : "None this window",
+    inline: false,
+  })
+  if (d.topWallets.length > 0) {
+    fields.push({
+      name: "Smart Money",
+      value: d.topWallets.slice(0, 5).map(w => {
+        const sign = Number(w.netFlow) >= 0 ? "+" : ""
+        return `\`${shortAddr(w.address)}\` ${w.behavior} · ${sign}${fmt(w.netFlow)} MNT`
+      }).join("\n"),
+      inline: false,
+    })
+  }
+
+  const payload = {
+    username: "ChainSentinel",
+    avatar_url: LOGO_URL,
+    embeds: [{
+      author: { name: "ChainSentinel · Mantle Activity", url: `${LIVE_URL}/feed`, icon_url: LOGO_URL },
+      title: `📊 Activity snapshot — Block ${Number(d.block).toLocaleString()}`,
+      url: `${LIVE_URL}/feed`,
+      color: 0x00d4aa,
+      fields,
+      footer: { text: "ChainSentinel · live on Mantle", icon_url: LOGO_URL },
+      timestamp: new Date().toISOString(),
+    }],
+  }
+
+  await fetch(webhook, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  })
+}
+
 function escapeHtml(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
 }

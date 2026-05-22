@@ -387,7 +387,7 @@ export default function FeedPage() {
         {!loading && (
           <div style={{ padding: "12px 20px 32px", textAlign: "center" }}>
             <div style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 10 }}>
-              Get these alerts pushed to you
+              Anomalies, smart money & audits pushed live to
             </div>
             <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
               <a
