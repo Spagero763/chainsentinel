@@ -30,17 +30,17 @@ export async function GET() {
     const latest = await client.getBlockNumber()
 
     const blockPromises = []
-    for (let i = 0n; i < 20n; i++) {
+    for (let i = 0n; i < 60n; i++) {
       blockPromises.push(client.getBlock({ blockNumber: latest - i, includeTransactions: true }))
     }
     const blocks = await Promise.all(blockPromises)
 
-    let whale = 0, large = 0, deploy = 0, gas = 0
+    let whale = 0, large = 0, deploy = 0, gas = 0, defi = 0
     const wallets = new Map<string, { vin: bigint; vout: bigint }>()
 
     for (const block of blocks) {
       const txs = block.transactions.filter(t => typeof t === "object") as Array<{
-        from: `0x${string}`; to: `0x${string}` | null; value: bigint; gasPrice?: bigint; input: string
+        from: `0x${string}`; to: `0x${string}` | null; value: bigint; gas: bigint; gasPrice?: bigint; input: string
       }>
       const gasPrices = txs.map(t => t.gasPrice ?? 0n).filter(g => g > 0n).sort((a, b) => (a < b ? -1 : 1))
       const median = gasPrices.length ? gasPrices[Math.floor(gasPrices.length / 2)] : 0n
@@ -54,6 +54,7 @@ export async function GET() {
         else if (tx.value >= LARGE && tx.to) large++
         if (!tx.to && tx.input && tx.input.length > 2) deploy++
         if (median > 0n && tx.gasPrice && tx.gasPrice > median * 3n) gas++
+        if (tx.to && tx.input && tx.input.length > 10 && tx.gas > 100_000n) defi++
 
         if (tx.value > 0n) {
           const s = wallets.get(from) ?? { vin: 0n, vout: 0n }
@@ -78,14 +79,14 @@ export async function GET() {
         behavior: x.net >= ACCUM ? "accumulating" : x.net <= -ACCUM ? "distributing" : "active",
       }))
 
-    const total = whale + large + deploy + gas
+    const total = whale + large + deploy + gas + defi
     const hasActivity = total > 0 || topWallets.length > 0
 
     let pushed = { telegram: false, discord: false }
     if (hasActivity) {
       pushed = await broadcastDigest({
         block: latest.toString(),
-        anomalies: { whale, large, deploy, gas, total },
+        anomalies: { whale, large, deploy, gas, defi, total },
         topWallets,
       })
     }
@@ -93,7 +94,7 @@ export async function GET() {
     return NextResponse.json({
       ok: true,
       block: latest.toString(),
-      anomalies: { whale, large, deploy, gas, total },
+      anomalies: { whale, large, deploy, gas, defi, total },
       smartWallets: topWallets.length,
       pushed,
       skipped: !hasActivity,

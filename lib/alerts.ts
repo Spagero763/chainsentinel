@@ -70,7 +70,7 @@ export async function broadcastAudit(alert: AuditAlert, sourceHash: string): Pro
 
 export interface ActivityDigest {
   block: string
-  anomalies: { whale: number; large: number; deploy: number; gas: number; total: number }
+  anomalies: { whale: number; large: number; deploy: number; gas: number; defi: number; total: number }
   topWallets: Array<{ address: string; behavior: string; netFlow: string; totalVolume: string }>
 }
 
@@ -103,7 +103,8 @@ async function sendTelegramDigest(d: ActivityDigest): Promise<void> {
   if (a.large > 0)  parts.push(`💸 ${a.large} large transfer${a.large === 1 ? "" : "s"}`)
   if (a.deploy > 0) parts.push(`📦 ${a.deploy} deploy${a.deploy === 1 ? "" : "s"}`)
   if (a.gas > 0)    parts.push(`⛽ ${a.gas} gas spike${a.gas === 1 ? "" : "s"}`)
-  lines.push(parts.length ? parts.join(" · ") : "No anomalies this window")
+  if (a.defi > 0)   parts.push(`🔄 ${a.defi} DeFi call${a.defi === 1 ? "" : "s"}`)
+  lines.push(parts.length ? parts.join(" · ") : "Quiet window")
   lines.push("")
 
   if (d.topWallets.length > 0) {
@@ -136,11 +137,12 @@ async function sendDiscordDigest(d: ActivityDigest): Promise<void> {
   if (a.large > 0)  anomalyParts.push(`💸 ${a.large} large`)
   if (a.deploy > 0) anomalyParts.push(`📦 ${a.deploy} deploy`)
   if (a.gas > 0)    anomalyParts.push(`⛽ ${a.gas} gas`)
+  if (a.defi > 0)   anomalyParts.push(`🔄 ${a.defi} DeFi`)
 
   const fields = []
   fields.push({
-    name: "Anomalies",
-    value: anomalyParts.length ? anomalyParts.join(" · ") : "None this window",
+    name: "Activity",
+    value: anomalyParts.length ? anomalyParts.join(" · ") : "Quiet window",
     inline: false,
   })
   if (d.topWallets.length > 0) {
